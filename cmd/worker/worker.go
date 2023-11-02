@@ -12,6 +12,7 @@ import (
 	"github.com/Julien4218/workflow-poc/workflows"
 
 	slackActivities "github.com/Julien4218/temporal-slack-activity/activities"
+	slackInstrumentation "github.com/Julien4218/temporal-slack-activity/instrumentation"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
 )
@@ -40,6 +41,8 @@ var workerCmd = &cobra.Command{
 			w := worker.New(c, workflows.QueueName, worker.Options{})
 
 			w.RegisterWorkflow(workflows.ErWorkflow)
+
+			slackInstrumentation.AddLogger(func(message string) { logrus.Info(message) })
 			w.RegisterActivity(slackActivities.PostMessageActivity)
 
 			err = w.Run(worker.InterruptCh())

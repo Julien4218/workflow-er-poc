@@ -2,6 +2,8 @@ module github.com/Julien4218/workflow-poc
 
 go 1.19
 
+// replace github.com/Julien4218/temporal-slack-activity => /Users/<username>/temporal-slack-activity
+
 require (
 	github.com/Julien4218/temporal-slack-activity v0.1.0
 	github.com/joho/godotenv v1.5.1
@@ -49,3 +51,4 @@ require (
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
