@@ -1,0 +1,64 @@
+name: Testing
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Release workflow calls this workflow
+  workflow_call:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19.x
+
+      - name: Add GOBIN to PATH
+        run: echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+        shell: bash
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Cache deps
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Lint
+        run: make lint
+
+  test-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19.x
+
+      - name: Add GOBIN to PATH
+        run: echo "$(go env GOPATH)/bin"
+        shell: bash
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Cache deps
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Unit Tests
+        run: make test-unit
