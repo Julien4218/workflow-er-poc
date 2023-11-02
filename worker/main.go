@@ -12,6 +12,10 @@ import (
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	// Create the client object just once per process
 	c, err := client.Dial(client.Options{})
 	if err != nil {
@@ -19,15 +23,10 @@ func main() {
 	}
 	defer c.Close()
 
-	err = godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	// This worker hosts both Workflow and Activity functions
+	// This worker hosts both SlackWorkflow and SlackMessageActivity functions
 	w := worker.New(c, workflowPOC.PocTaskQueue, worker.Options{})
-	w.RegisterWorkflow(workflows.Workflow)
-	w.RegisterActivity(workflows.Activity)
+	w.RegisterWorkflow(workflows.SlackWorkflow)
+	w.RegisterActivity(workflows.SlackMessageActivity)
 
 	// Start listening to the Task Queue
 	err = w.Run(worker.InterruptCh())
