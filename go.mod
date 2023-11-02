@@ -5,7 +5,7 @@ go 1.19
 // replace github.com/Julien4218/temporal-slack-activity => /Users/<username>/temporal-slack-activity
 
 require (
-	github.com/Julien4218/temporal-slack-activity v0.1.0
+	github.com/Julien4218/temporal-slack-activity v0.2.0
 	github.com/joho/godotenv v1.5.1
 	github.com/slack-go/slack v0.12.3
 	github.com/spf13/cobra v1.7.0
@@ -51,4 +51,3 @@ require (
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
