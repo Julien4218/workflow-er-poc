@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/Julien4218/workflow-poc"
-	"github.com/Julien4218/workflow-poc/workflows"
 	"log"
+
+	workflowPOC "github.com/Julien4218/workflow-poc"
+	"github.com/Julien4218/workflow-poc/workflows"
 
 	"go.temporal.io/sdk/client"
 )

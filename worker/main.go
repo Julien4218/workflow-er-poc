@@ -1,12 +1,14 @@
 package main
 
 import (
-	"github.com/Julien4218/workflow-poc"
-	"github.com/Julien4218/workflow-poc/workflows"
+	"log"
+
 	"github.com/joho/godotenv"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
-	"log"
+
+	workflowPOC "github.com/Julien4218/workflow-poc"
+	"github.com/Julien4218/workflow-poc/workflows"
 )
 
 func main() {

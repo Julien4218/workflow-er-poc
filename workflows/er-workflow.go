@@ -7,6 +7,9 @@ import (
 	"go.temporal.io/sdk/workflow"
 
 	slackActivities "github.com/Julien4218/temporal-slack-activity/activities"
+	"github.com/sirupsen/logrus"
+
+	"github.com/Julien4218/workflow-poc/instrumentation"
 )
 
 const WorkflowName = "ErWorkflow"
@@ -18,6 +21,11 @@ type ErWorkflowInput struct {
 }
 
 func ErWorkflow(ctx workflow.Context, input *ErWorkflowInput) (string, error) {
+	logrus.Infof("%s-Workflow started:ErWorklow", instrumentation.Hostname)
+	defer logrus.Infof("%s-Workflow completed:ErWorklow", instrumentation.Hostname)
+	txn := instrumentation.NrApp.StartTransaction("ErWorkflow")
+	defer txn.End()
+
 	// Define the Activity Execution options
 	// StartToCloseTimeout or ScheduleToCloseTimeout must be set
 	activityOptions := workflow.ActivityOptions{

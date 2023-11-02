@@ -1,12 +1,14 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
+	"github.com/Julien4218/workflow-poc/instrumentation"
 	"github.com/Julien4218/workflow-poc/workflows"
 
 	slackActivities "github.com/Julien4218/temporal-slack-activity/activities"
@@ -22,27 +24,32 @@ var workerCmd = &cobra.Command{
 
 		err := godotenv.Load()
 		if err != nil {
-			log.Fatal("Error loading .env file")
+			fmt.Printf("Error loading .env file")
+			os.Exit(1)
 		}
+
+		instrumentation.Init()
+		logrus.Infof("%s-Worker started", instrumentation.Hostname)
 
 		c, err := client.Dial(client.Options{
 			HostPort:  os.Getenv("TEMPORAL_HOSTPORT"),
 			Namespace: "default",
 		})
-		if err != nil {
-			log.Fatalf("client error: %v", err)
+		if err == nil {
+			defer c.Close()
+			w := worker.New(c, workflows.QueueName, worker.Options{})
+
+			w.RegisterWorkflow(workflows.ErWorkflow)
+			w.RegisterActivity(slackActivities.PostMessageActivity)
+
+			err = w.Run(worker.InterruptCh())
 		}
 		defer c.Close()
 
-		w := worker.New(c, workflows.QueueName, worker.Options{})
-
-		w.RegisterWorkflow(workflows.ErWorkflow)
-		w.RegisterActivity(slackActivities.PostMessageActivity)
-
-		err = w.Run(worker.InterruptCh())
 		if err != nil {
-			log.Fatalf("worker exited: %v", err)
+			logrus.Errorf("%s-Worker exited with error: %v", instrumentation.Hostname, err)
 		}
+		logrus.Infof("%s-Worker exited", instrumentation.Hostname)
 	},
 }
 

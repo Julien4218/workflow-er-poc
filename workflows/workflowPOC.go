@@ -3,11 +3,12 @@ package workflows
 import (
 	"context"
 	"fmt"
+	"os"
+	"time"
+
 	"github.com/slack-go/slack"
 	"go.temporal.io/sdk/activity"
 	"go.temporal.io/sdk/workflow"
-	"os"
-	"time"
 )
 
 // Workflow is a Hello World workflow definition.
