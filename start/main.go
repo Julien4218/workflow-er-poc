@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
+
+	"github.com/joho/godotenv"
 
 	workflowPOC "github.com/Julien4218/workflow-poc"
 	"github.com/Julien4218/workflow-poc/workflows"
