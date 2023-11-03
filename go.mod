@@ -5,7 +5,7 @@ go 1.19
 // replace github.com/Julien4218/temporal-slack-activity => /Users/<username>/temporal-slack-activity
 
 require (
-	github.com/Julien4218/temporal-slack-activity v0.2.0
+	github.com/Julien4218/temporal-slack-activity v0.3.0
 	github.com/joho/godotenv v1.5.1
 	github.com/newrelic/go-agent/v3 v3.27.0
 	github.com/newrelic/go-agent/v3/integrations/logcontext-v2/nrlogrus v1.0.0
