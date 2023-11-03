@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/slack-go/slack"
+
 	"github.com/joho/godotenv"
 
 	workflowPOC "github.com/Julien4218/workflow-poc"
@@ -32,22 +34,27 @@ func main() {
 	}
 
 	// Start the SlackWorkflow
-	name := "World"
+	stackTrace := "Traceback (most recent call last):\n  File \"tb.py\", line 15, in <module>\n    a()\n  File \"tb.py\", line 3, in a\n    j = b(i)\n  File \"tb.py\", line 9, in b\n    c()\n  File \"tb.py\", line 13, in c\n    error()\nNameError: name 'error' is not defined\n"
+	firstResponseWarning := "It looks like there might be an error."
+	attachment := slack.Attachment{
+		Pretext: "Here's the stack trace.",
+		Text:    stackTrace,
+	}
 	channel := os.Getenv("SLACK_CHANNEL")
 	fmt.Printf("Channel id is: %s", channel)
-	we, err := c.ExecuteWorkflow(context.Background(), options, workflows.SlackWorkflow, name, channel)
+	workflowExecution, err := c.ExecuteWorkflow(context.Background(), options, workflows.SlackWorkflow, firstResponseWarning, channel, attachment)
 	if err != nil {
 		log.Fatalln("unable to complete SlackWorkflow", err)
 	}
 
 	// Get the results
 	var greeting string
-	err = we.Get(context.Background(), &greeting)
+	err = workflowExecution.Get(context.Background(), &greeting)
 	if err != nil {
 		log.Fatalln("unable to get SlackWorkflow result", err)
 	}
 
-	printResults(greeting, we.GetID(), we.GetRunID())
+	printResults(greeting, workflowExecution.GetID(), workflowExecution.GetRunID())
 }
 
 func printResults(greeting string, workflowID, runID string) {
