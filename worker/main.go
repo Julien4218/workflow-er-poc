@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 
+	"github.com/Julien4218/temporal-slack-activity/activities"
+
 	"github.com/joho/godotenv"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
@@ -26,7 +28,7 @@ func main() {
 	// This worker hosts both SlackWorkflow and SlackMessageActivity functions
 	w := worker.New(c, workflowPOC.PocTaskQueue, worker.Options{})
 	w.RegisterWorkflow(workflows.SlackWorkflow)
-	w.RegisterActivity(workflows.SlackMessageActivity)
+	w.RegisterActivity(activities.PostMessageActivity)
 
 	// Start listening to the Task Queue
 	err = w.Run(worker.InterruptCh())
