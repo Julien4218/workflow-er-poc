@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
+
+	"github.com/joho/godotenv"
 
 	workflowPOC "github.com/Julien4218/workflow-poc"
 	"github.com/Julien4218/workflow-poc/workflows"
@@ -12,7 +15,10 @@ import (
 )
 
 func main() {
-
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	// Create the client object just once per process
 	c, err := client.Dial(client.Options{})
 	if err != nil {
@@ -25,18 +31,20 @@ func main() {
 		TaskQueue: workflowPOC.PocTaskQueue,
 	}
 
-	// Start the Workflow
+	// Start the SlackWorkflow
 	name := "World"
-	we, err := c.ExecuteWorkflow(context.Background(), options, workflows.Workflow, name)
+	channel := os.Getenv("SLACK_CHANNEL")
+	fmt.Printf("Channel id is: %s", channel)
+	we, err := c.ExecuteWorkflow(context.Background(), options, workflows.SlackWorkflow, name, channel)
 	if err != nil {
-		log.Fatalln("unable to complete Workflow", err)
+		log.Fatalln("unable to complete SlackWorkflow", err)
 	}
 
 	// Get the results
 	var greeting string
 	err = we.Get(context.Background(), &greeting)
 	if err != nil {
-		log.Fatalln("unable to get Workflow result", err)
+		log.Fatalln("unable to get SlackWorkflow result", err)
 	}
 
 	printResults(greeting, we.GetID(), we.GetRunID())
