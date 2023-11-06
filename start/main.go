@@ -6,9 +6,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/slack-go/slack"
-
 	"github.com/joho/godotenv"
+
+	"github.com/Julien4218/temporal-slack-activity/models"
 
 	workflowPOC "github.com/Julien4218/workflow-poc"
 	"github.com/Julien4218/workflow-poc/workflows"
@@ -36,7 +36,7 @@ func main() {
 	// Start the SlackWorkflow
 	stackTrace := "Traceback (most recent call last):\n  File \"tb.py\", line 15, in <module>\n    a()\n  File \"tb.py\", line 3, in a\n    j = b(i)\n  File \"tb.py\", line 9, in b\n    c()\n  File \"tb.py\", line 13, in c\n    error()\nNameError: name 'error' is not defined\n"
 	firstResponseWarning := "It looks like there might be an error."
-	attachment := slack.Attachment{
+	attachment := models.MessageAttachment{
 		Pretext: "Here's the stack trace.",
 		Text:    stackTrace,
 	}
