@@ -9,6 +9,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/Julien4218/temporal-slack-activity/models"
+
 	workflowPOC "github.com/Julien4218/workflow-poc"
 	"github.com/Julien4218/workflow-poc/workflows"
 
