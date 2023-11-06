@@ -7,9 +7,13 @@ go 1.19
 require (
 	github.com/Julien4218/temporal-slack-activity v0.3.0
 	github.com/joho/godotenv v1.5.1
+	github.com/newrelic/go-agent/v3 v3.27.0
+	github.com/newrelic/go-agent/v3/integrations/logcontext-v2/nrlogrus v1.0.0
+	github.com/sirupsen/logrus v1.9.3
 	github.com/slack-go/slack v0.12.3
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
+	github.com/stretchr/testify v1.8.4
 	go.temporal.io/sdk v1.25.1
 )
 
@@ -28,14 +32,10 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/klauspost/compress v1.16.3 // indirect
-	github.com/newrelic/go-agent/v3 v3.27.0 // indirect
-	github.com/newrelic/go-agent/v3/integrations/logcontext-v2/nrlogrus v1.0.0 // indirect
 	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/robfig/cron v1.2.0 // indirect
-	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
-	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.49.0 // indirect
 	go.temporal.io/api v1.24.0 // indirect
