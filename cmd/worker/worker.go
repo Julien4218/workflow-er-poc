@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
-	"os"
-
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"os"
 
 	"github.com/Julien4218/workflow-poc/instrumentation"
 	"github.com/Julien4218/workflow-poc/workflows"
@@ -32,22 +31,22 @@ var workerCmd = &cobra.Command{
 		instrumentation.Init()
 		logrus.Infof("%s-Worker started", instrumentation.Hostname)
 
-		c, err := client.Dial(client.Options{
+		client, err := client.Dial(client.Options{
 			HostPort:  os.Getenv("TEMPORAL_HOSTPORT"),
 			Namespace: "default",
 		})
 		if err == nil {
-			defer c.Close()
-			w := worker.New(c, workflows.QueueName, worker.Options{})
+			defer client.Close()
+			workerInstance := worker.New(client, workflows.QueueName, worker.Options{})
 
-			w.RegisterWorkflow(workflows.ErWorkflow)
+			workerInstance.RegisterWorkflow(workflows.ErWorkflow)
 
 			slackInstrumentation.AddLogger(func(message string) { logrus.Info(message) })
-			w.RegisterActivity(slackActivities.PostMessageActivity)
+			workerInstance.RegisterActivity(slackActivities.PostMessageActivity)
 
-			err = w.Run(worker.InterruptCh())
+			err = workerInstance.Run(worker.InterruptCh())
 		}
-		defer c.Close()
+		defer client.Close()
 
 		if err != nil {
 			logrus.Errorf("%s-Worker exited with error: %v", instrumentation.Hostname, err)
