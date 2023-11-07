@@ -1,7 +1,6 @@
 package workflows
 
 import (
-	"github.com/joho/godotenv"
 	"fmt"
 	"os"
 	"time"
