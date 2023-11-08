@@ -2,9 +2,10 @@ package workflows
 
 import (
 	"fmt"
-	"github.com/slack-go/slack"
 	"os"
 	"time"
+
+	"github.com/slack-go/slack"
 
 	slackModels "github.com/Julien4218/temporal-slack-activity/models"
 	"go.temporal.io/sdk/workflow"
