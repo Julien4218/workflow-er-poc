@@ -1,6 +1,7 @@
 package workflows
 
 import (
+	"errors"
 	"os"
 	"time"
 
@@ -28,12 +29,16 @@ func IncidentWorkflow(ctx workflow.Context, input *IncidentWorkflowInput) (strin
 	ctx = updateIncidentWorkflowContextOptions(ctx, 10*time.Minute)
 	logrus.Infof("Got input:%s", input)
 
+	slackChannel := os.Getenv("SLACK_CHANNEL")
+	if slackChannel == "" {
+		return "", errors.New("required environment variable SLACK_CHANNEL is not set")
+	}
 	message := "Starting an Incident in Upboard"
 	messageData := slackModels.SlackActivityData{
-		ChannelId:            os.Getenv("SLACK_CHANNEL"),
+		ChannelId:            slackChannel,
 		FirstResponseWarning: message,
 	}
-	var result string
+	var result slackModels.MessageDetails
 	if err := workflow.ExecuteActivity(ctx, slackActivities.PostMessageActivity, messageData).Get(ctx, &result); err != nil {
 		logrus.Errorf("Activity failed. Error: %s", err)
 		return "", err
