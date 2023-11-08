@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="worker" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="workflow-er-poc" />
+    <working_directory value="$PROJECT_DIR$" />
+    <parameters value="--queue=ErWorkflow-Queue" />
+    <kind value="PACKAGE" />
+    <package value="github.com/Julien4218/workflow-poc/cmd/worker" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/worker/main.go" />
+    <method v="2" />
+  </configuration>
+</component>
