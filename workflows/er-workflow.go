@@ -17,7 +17,6 @@ import (
 )
 
 const WorkflowName = "ErWorkflow"
-const QueueName = WorkflowName + "-Queue"
 
 type ErWorkflowInput struct {
 	Email string
