@@ -2,10 +2,9 @@ package workflows
 
 import (
 	"fmt"
+	"github.com/slack-go/slack"
 	"os"
 	"time"
-
-	"github.com/Julien4218/workflow-poc/models/signals"
 
 	slackModels "github.com/Julien4218/temporal-slack-activity/models"
 	"go.temporal.io/sdk/workflow"
@@ -34,29 +33,85 @@ func ErWorkflow(ctx workflow.Context, input *ErWorkflowInput) (string, error) {
 	// Execute the SlackMessageActivity synchronously (wait for the result before proceeding)
 	message := fmt.Sprintf("Hello %s, this is a tier %s", input.Email, input.Tier)
 	requiredSlackData := lookupSlackData(message)
-	var result string
+	var result slackModels.MessageDetails
 	if err := workflow.ExecuteActivity(ctx, slackActivities.PostMessageActivity, requiredSlackData).Get(ctx, &result); err != nil {
 		logrus.Errorf("Activity failed. Error: %s", err)
 		return "", err
 	}
 
-	var slackIsIncidentSignal signals.SlackIsIncidentSignal
-	signalChannel := workflow.GetSignalChannel(ctx, signals.SlackIsIncidentSignalName)
-	selector := workflow.NewSelector(ctx)
-	selector.AddReceive(signalChannel, func(channel workflow.ReceiveChannel, more bool) {
-		channel.Receive(ctx, &slackIsIncidentSignal)
-	})
-	selector.Select(ctx)
-	if slackIsIncidentSignal.IsIncident {
-		logrus.Infof("is incident")
-	} else {
-		logrus.Infof("is not incident")
+	var incidentIsPending = true
+	for incidentIsPending {
+		var reactions []slack.ItemReaction
+		err := workflow.ExecuteActivity(ctx, slackActivities.GetMessageReactions, result.ChannelID, result.Timestamp).Get(ctx, &reactions)
+		if err != nil {
+			return "", err
+		}
+		logrus.Infof("logging reactions%t", reactions)
+
+		if hasIsIncidentReactionOnMessage(reactions) {
+			incidentIsPending = false
+			logrus.Infof("is incident")
+			requiredSlackData := slackModels.SlackActivityData{
+				ChannelId: os.Getenv("SLACK_CHANNEL"),
+				//todo change the datastructure of the SlackActivityData object
+				FirstResponseWarning: "Thanks for confirming the incident. Let's get this party started! :tada:",
+				Attachment: slackModels.MessageAttachment{
+					Pretext: "",
+					Text:    "",
+				},
+			}
+			if err := workflow.ExecuteActivity(ctx, slackActivities.PostMessageActivity, requiredSlackData).Get(ctx, &result); err != nil {
+				return "", err
+			}
+
+		} else if hasNotIncidentReactionOnMessage(reactions) {
+			incidentIsPending = false
+			logrus.Infof("is not incident")
+			requiredSlackData := slackModels.SlackActivityData{
+				ChannelId: os.Getenv("SLACK_CHANNEL"),
+				//todo change the datastructure of the SlackActivityData object
+				FirstResponseWarning: "No errors in sight!",
+				Attachment: slackModels.MessageAttachment{
+					Pretext: "",
+					Text:    "",
+				},
+			}
+			if err := workflow.ExecuteActivity(ctx, slackActivities.PostMessageActivity, requiredSlackData).Get(ctx, &result); err != nil {
+				return "", err
+			}
+			return "", nil
+		} else {
+			err := workflow.Sleep(ctx, 1*time.Second)
+			if err != nil {
+				return "", err
+			}
+
+			//	todo we should maybe have a max lifetime for this workflow
+		}
 	}
 
 	logrus.Infof("SlackWorkflow workflow completed. Result: %s", result)
+	return "", nil
+}
 
-	// Make the results of the SlackWorkflow available
-	return result, nil
+func hasNotIncidentReactionOnMessage(reactions []slack.ItemReaction) bool {
+	if len(reactions) > 0 {
+		fmt.Print(reactions[0].Name)
+		if reactions[0].Name == "two" {
+			return true
+		}
+	}
+	return false
+}
+
+func hasIsIncidentReactionOnMessage(reactions []slack.ItemReaction) bool {
+	if len(reactions) > 0 {
+		fmt.Print(reactions[0].Name)
+		if reactions[0].Name == "one" {
+			return true
+		}
+	}
+	return false
 }
 
 func updateWorkflowContextOptions(ctx workflow.Context) workflow.Context {

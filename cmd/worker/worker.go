@@ -53,6 +53,7 @@ var workerCmd = &cobra.Command{
 
 			slackInstrumentation.AddLogger(func(message string) { logrus.Info(message) })
 			workerInstance.RegisterActivity(slackActivities.PostMessageActivity)
+			workerInstance.RegisterActivity(slackActivities.GetMessageReactions)
 
 			err = workerInstance.Run(worker.InterruptCh())
 		}
