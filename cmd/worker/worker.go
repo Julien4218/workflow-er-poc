@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"os"
 
 	"github.com/Julien4218/workflow-poc/instrumentation"
 	"github.com/Julien4218/workflow-poc/workflows"
@@ -15,6 +16,14 @@ import (
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
 )
+
+var (
+	QueueName string
+)
+
+func init() {
+	workerCmd.Flags().StringVar(&QueueName, "queue", workflows.DefaultQueueName, "Queue")
+}
 
 // workerCmd represents the worker command
 var workerCmd = &cobra.Command{
@@ -29,7 +38,7 @@ var workerCmd = &cobra.Command{
 		}
 
 		instrumentation.Init()
-		logrus.Infof("%s-Worker started", instrumentation.Hostname)
+		logrus.Infof("%s-Worker started on queue %s", instrumentation.Hostname, QueueName)
 
 		client, err := client.Dial(client.Options{
 			HostPort:  os.Getenv("TEMPORAL_HOSTPORT"),
@@ -37,9 +46,10 @@ var workerCmd = &cobra.Command{
 		})
 		if err == nil {
 			defer client.Close()
-			workerInstance := worker.New(client, workflows.QueueName, worker.Options{})
+			workerInstance := worker.New(client, QueueName, worker.Options{})
 
 			workerInstance.RegisterWorkflow(workflows.ErWorkflow)
+			workerInstance.RegisterWorkflow(workflows.IncidentWorkflow)
 
 			slackInstrumentation.AddLogger(func(message string) { logrus.Info(message) })
 			workerInstance.RegisterActivity(slackActivities.PostMessageActivity)
