@@ -77,9 +77,9 @@ func ErWorkflow(ctx workflow.Context, input *ErWorkflowInput) (string, error) {
 			if err := workflow.ExecuteActivity(ctx, slackActivities.PostMessageActivity, requiredSlackData).Get(ctx, &result); err != nil {
 				return "", err
 			}
+			continue
 
 		} else if hasNotIncidentReactionOnMessage(reactionKeysMap, reactionCountsMap) {
-			incidentIsPending = false
 			logrus.Infof("is not incident")
 			requiredSlackData := slackModels.SlackActivityData{
 				ChannelId: os.Getenv("SLACK_CHANNEL"),
