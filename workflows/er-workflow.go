@@ -39,16 +39,30 @@ func ErWorkflow(ctx workflow.Context, input *ErWorkflowInput) (string, error) {
 		return "", err
 	}
 
+	futureWait := "foo"
+	err := workflow.ExecuteActivity(ctx, slackActivities.AddReaction, "one", result.ChannelID, result.Timestamp).Get(ctx, &futureWait)
+	if err != nil {
+		return "", err
+	}
+	workflow.ExecuteActivity(ctx, slackActivities.AddReaction, "two", result.ChannelID, result.Timestamp)
+
 	var incidentIsPending = true
 	for incidentIsPending {
+		reactionKeysMap := make(map[string]bool)
+		reactionCountsMap := make(map[string]int)
+
 		var reactions []slack.ItemReaction
 		err := workflow.ExecuteActivity(ctx, slackActivities.GetMessageReactions, result.ChannelID, result.Timestamp).Get(ctx, &reactions)
 		if err != nil {
 			return "", err
 		}
-		logrus.Infof("logging reactions%t", reactions)
 
-		if hasIsIncidentReactionOnMessage(reactions) {
+		for i := 0; i < len(reactions); i++ {
+			reactionKeysMap[reactions[i].Name] = true
+			reactionCountsMap[reactions[i].Name] = reactions[i].Count
+		}
+
+		if hasIsIncidentReactionOnMessage(reactionKeysMap, reactionCountsMap) {
 			incidentIsPending = false
 			logrus.Infof("is incident")
 			requiredSlackData := slackModels.SlackActivityData{
@@ -64,7 +78,7 @@ func ErWorkflow(ctx workflow.Context, input *ErWorkflowInput) (string, error) {
 				return "", err
 			}
 
-		} else if hasNotIncidentReactionOnMessage(reactions) {
+		} else if hasNotIncidentReactionOnMessage(reactionKeysMap, reactionCountsMap) {
 			incidentIsPending = false
 			logrus.Infof("is not incident")
 			requiredSlackData := slackModels.SlackActivityData{
@@ -94,22 +108,17 @@ func ErWorkflow(ctx workflow.Context, input *ErWorkflowInput) (string, error) {
 	return "", nil
 }
 
-func hasNotIncidentReactionOnMessage(reactions []slack.ItemReaction) bool {
-	if len(reactions) > 0 {
-		fmt.Print(reactions[0].Name)
-		if reactions[0].Name == "two" {
-			return true
-		}
+func hasNotIncidentReactionOnMessage(reactionKeysMap map[string]bool, reactionCountsMap map[string]int) bool {
+	//todo these methods won't work for non english installs
+	if reactionKeysMap["two"] && reactionCountsMap["two"] > 1 {
+		return true
 	}
 	return false
 }
 
-func hasIsIncidentReactionOnMessage(reactions []slack.ItemReaction) bool {
-	if len(reactions) > 0 {
-		fmt.Print(reactions[0].Name)
-		if reactions[0].Name == "one" {
-			return true
-		}
+func hasIsIncidentReactionOnMessage(reactionKeysMap map[string]bool, reactionCountsMap map[string]int) bool {
+	if reactionKeysMap["one"] && reactionCountsMap["one"] > 1 {
+		return true
 	}
 	return false
 }
@@ -127,8 +136,10 @@ func updateWorkflowContextOptions(ctx workflow.Context) workflow.Context {
 func lookupSlackData(message string) slackModels.SlackActivityData {
 	//todo in the future do the actual calls to look this up
 	slackActivityData := slackModels.SlackActivityData{
-		ChannelId:            os.Getenv("SLACK_CHANNEL"),
-		FirstResponseWarning: message + "It looks like there might be an error.",
+		ChannelId: os.Getenv("SLACK_CHANNEL"),
+		FirstResponseWarning: message + "It looks like there might be an error. \n" +
+			":one: To confirm the incident and start debugging \n" +
+			":two: To dismiss",
 		Attachment: slackModels.MessageAttachment{
 			Pretext: "Here's the stack trace.",
 			Text:    "Traceback (most recent call last):\n  File \"tb.py\", line 15, in <module>\n    a()\n  File \"tb.py\", line 3, in a\n    j = b(i)\n  File \"tb.py\", line 9, in b\n    c()\n  File \"tb.py\", line 13, in c\n    error()\nNameError: name 'error' is not defined\n",
