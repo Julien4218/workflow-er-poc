@@ -38,7 +38,7 @@ func IncidentWorkflow(ctx workflow.Context, input *IncidentWorkflowInput) (strin
 		ChannelId:            slackChannel,
 		FirstResponseWarning: message,
 	}
-	var result string
+	var result slackModels.MessageDetails
 	if err := workflow.ExecuteActivity(ctx, slackActivities.PostMessageActivity, messageData).Get(ctx, &result); err != nil {
 		logrus.Errorf("Activity failed. Error: %s", err)
 		return "", err

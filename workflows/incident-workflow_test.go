@@ -14,9 +14,9 @@ func (s *UnitTestSuite) Test_IncidentWorkflow_PostMessageFailed() {
 	s.Suite.T().Setenv("SLACK_CHANNEL", "my slack channel")
 
 	s.env.OnActivity(slackActivities.PostMessageActivity, mock.Anything, mock.Anything).Return(
-		func(ctx context.Context, slackDate models.SlackActivityData) (string, error) {
+		func(ctx context.Context, slackDate models.SlackActivityData) (models.MessageDetails, error) {
 			// your mock function implementation
-			return "", errors.New("Slack PostMessage failed")
+			return models.MessageDetails{}, errors.New("Slack PostMessage failed")
 		})
 	s.env.ExecuteWorkflow(IncidentWorkflow, nil)
 
@@ -45,9 +45,9 @@ func (s *UnitTestSuite) Test_IncidentWorkflow_PostMessageSuccess() {
 	s.Suite.T().Setenv("SLACK_CHANNEL", "my slack channel")
 
 	s.env.OnActivity(slackActivities.PostMessageActivity, mock.Anything, mock.Anything).Return(
-		func(ctx context.Context, slackDate models.SlackActivityData) (string, error) {
+		func(ctx context.Context, slackDate models.SlackActivityData) (models.MessageDetails, error) {
 			s.Equal("my slack channel", slackDate.ChannelId)
-			return "", nil
+			return models.MessageDetails{}, nil
 		})
 	s.env.ExecuteWorkflow(IncidentWorkflow, nil)
 
