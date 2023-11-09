@@ -11,6 +11,8 @@ import (
 	"github.com/Julien4218/workflow-poc/instrumentation"
 	"github.com/Julien4218/workflow-poc/workflows"
 
+	newrelicActivities "github.com/Julien4218/temporal-newrelic-activity/activities"
+	newrelicInstrumentation "github.com/Julien4218/temporal-newrelic-activity/instrumentation"
 	slackActivities "github.com/Julien4218/temporal-slack-activity/activities"
 	slackInstrumentation "github.com/Julien4218/temporal-slack-activity/instrumentation"
 	"go.temporal.io/sdk/client"
@@ -55,6 +57,9 @@ var workerCmd = &cobra.Command{
 			workerInstance.RegisterActivity(slackActivities.PostMessageActivity)
 			workerInstance.RegisterActivity(slackActivities.GetMessageReactions)
 			workerInstance.RegisterActivity(slackActivities.AddReaction)
+
+			newrelicInstrumentation.AddLogger(func(message string) { logrus.Info(message) })
+			workerInstance.RegisterActivity(newrelicActivities.QueryNrql)
 
 			err = workerInstance.Run(worker.InterruptCh())
 		}

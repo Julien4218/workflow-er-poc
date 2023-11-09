@@ -5,6 +5,7 @@ go 1.19
 // replace github.com/Julien4218/temporal-slack-activity => /Users/<username>/temporal-slack-activity
 
 require (
+	github.com/Julien4218/temporal-newrelic-activity v0.1.0
 	github.com/Julien4218/temporal-slack-activity v0.7.0
 	github.com/joho/godotenv v1.5.1
 	github.com/newrelic/go-agent/v3 v3.27.0
@@ -26,18 +27,25 @@ require (
 	github.com/gogo/status v1.1.1 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
+	github.com/hashicorp/go-cleanhttp v0.5.1 // indirect
+	github.com/hashicorp/go-retryablehttp v0.7.0 // indirect
+	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/klauspost/compress v1.16.3 // indirect
+	github.com/newrelic/newrelic-client-go/v2 v2.22.0 // indirect
 	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/robfig/cron v1.2.0 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
+	github.com/tomnomnom/linkheader v0.0.0-20180905144013-02ca5825eb80 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.49.0 // indirect
+	github.com/valyala/fastjson v1.6.3 // indirect
 	go.temporal.io/api v1.24.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/net v0.14.0 // indirect

@@ -9,6 +9,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	newrelicActivities "github.com/Julien4218/temporal-newrelic-activity/activities"
 	slackActivities "github.com/Julien4218/temporal-slack-activity/activities"
 	slackModels "github.com/Julien4218/temporal-slack-activity/models"
 
@@ -40,6 +41,16 @@ func IncidentWorkflow(ctx workflow.Context, input *IncidentWorkflowInput) (strin
 	}
 	var result slackModels.MessageDetails
 	if err := workflow.ExecuteActivity(ctx, slackActivities.PostMessageActivity, messageData).Get(ctx, &result); err != nil {
+		logrus.Errorf("Activity failed. Error: %s", err)
+		return "", err
+	}
+
+	queryInput := newrelicActivities.QueryNrqlInput{
+		AccountID: 11933347,
+		Query:     "SELECT * FROM NrAiIncident SINCE 1 day ago",
+	}
+	var queryResult string
+	if err := workflow.ExecuteActivity(ctx, newrelicActivities.QueryNrql, queryInput).Get(ctx, &queryResult); err != nil {
 		logrus.Errorf("Activity failed. Error: %s", err)
 		return "", err
 	}
