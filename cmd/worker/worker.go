@@ -50,6 +50,7 @@ var workerCmd = &cobra.Command{
 
 			workerInstance.RegisterWorkflow(workflows.ErWorkflow)
 			workerInstance.RegisterWorkflow(workflows.IncidentWorkflow)
+			workerInstance.RegisterWorkflow(workflows.RetrospectiveWorkflow)
 
 			slackInstrumentation.AddLogger(func(message string) { logrus.Info(message) })
 			workerInstance.RegisterActivity(slackActivities.PostMessageActivity)

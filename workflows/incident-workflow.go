@@ -27,7 +27,7 @@ func IncidentWorkflow(ctx workflow.Context, input *IncidentWorkflowInput) (strin
 	defer txn.End()
 
 	ctx = updateIncidentWorkflowContextOptions(ctx, 10*time.Minute)
-	logrus.Infof("Got input:%s", input)
+	logrus.Infof("Got incident input:%s", input)
 
 	slackChannel := os.Getenv("SLACK_CHANNEL")
 	if slackChannel == "" {

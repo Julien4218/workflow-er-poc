@@ -78,6 +78,38 @@ func ErWorkflow(ctx workflow.Context, input *ErWorkflowInput) (string, error) {
 			if err := workflow.ExecuteActivity(ctx, slackActivities.PostMessageActivity, requiredSlackData).Get(ctx, &result); err != nil {
 				return "", err
 			}
+
+			//todo start next workflow
+			var incidentWorkflowInput = IncidentWorkflowInput{}
+			var childResponse string
+			err = workflow.ExecuteChildWorkflow(ctx, IncidentWorkflow, incidentWorkflowInput).Get(ctx, &childResponse)
+			if err != nil {
+				return "", err
+			}
+			logrus.Infof("child incident workflow completed")
+
+			//todo start next workflow
+			var retrospectiveWorkflowInput = RetrospectiveWorkflowInput{}
+			err = workflow.ExecuteChildWorkflow(ctx, RetrospectiveWorkflow, retrospectiveWorkflowInput).Get(ctx, &childResponse)
+			if err != nil {
+				return "", err
+			}
+
+			logrus.Infof("child incident workflow completed")
+
+			requiredSlackData = slackModels.SlackActivityData{
+				ChannelId: os.Getenv("SLACK_CHANNEL"),
+				//todo change the datastructure of the SlackActivityData object
+				FirstResponseWarning: "Incident resolved! Thanks for all the hard work everyone :tada:",
+				Attachment: slackModels.MessageAttachment{
+					Pretext: "",
+					Text:    "",
+				},
+			}
+			if err := workflow.ExecuteActivity(ctx, slackActivities.PostMessageActivity, requiredSlackData).Get(ctx, &result); err != nil {
+				return "", err
+			}
+
 			continue
 
 		} else if hasNotIncidentReactionOnMessage(reactionKeysMap, reactionCountsMap) {
