@@ -84,7 +84,7 @@ func ErWorkflow(ctx workflow.Context, input *ErWorkflowInput) (string, error) {
 			var childResponse string
 			err = workflow.ExecuteChildWorkflow(ctx, IncidentWorkflow, incidentWorkflowInput).Get(ctx, &childResponse)
 			if err != nil {
-				//	todo logging
+				return "", err
 			}
 			logrus.Infof("child incident workflow completed")
 
@@ -92,7 +92,7 @@ func ErWorkflow(ctx workflow.Context, input *ErWorkflowInput) (string, error) {
 			var retrospectiveWorkflowInput = RetrospectiveWorkflowInput{}
 			err = workflow.ExecuteChildWorkflow(ctx, RetrospectiveWorkflow, retrospectiveWorkflowInput).Get(ctx, &childResponse)
 			if err != nil {
-				//	todo logging
+				return "", err
 			}
 
 			logrus.Infof("child incident workflow completed")
