@@ -82,7 +82,7 @@ func ErWorkflow(ctx workflow.Context, input *ErWorkflowInput) (string, error) {
 			//todo start next workflow
 			var incidentWorkflowInput = IncidentWorkflowInput{}
 			var childResponse string
-			err := workflow.ExecuteChildWorkflow(ctx, IncidentWorkflow, incidentWorkflowInput).Get(ctx, &childResponse)
+			err = workflow.ExecuteChildWorkflow(ctx, IncidentWorkflow, incidentWorkflowInput).Get(ctx, &childResponse)
 			if err != nil {
 				//	todo logging
 			}
