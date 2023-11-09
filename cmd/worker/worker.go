@@ -60,6 +60,7 @@ var workerCmd = &cobra.Command{
 
 			newrelicInstrumentation.AddLogger(func(message string) { logrus.Info(message) })
 			workerInstance.RegisterActivity(newrelicActivities.QueryNrql)
+			workerInstance.RegisterActivity(newrelicActivities.JQ)
 
 			err = workerInstance.Run(worker.InterruptCh())
 		}
