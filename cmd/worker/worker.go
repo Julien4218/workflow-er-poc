@@ -59,7 +59,6 @@ var workerCmd = &cobra.Command{
 
 			err = workerInstance.Run(worker.InterruptCh())
 		}
-		defer client.Close()
 
 		if err != nil {
 			logrus.Errorf("%s-Worker exited with error: %v", instrumentation.Hostname, err)
