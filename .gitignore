@@ -17,3 +17,4 @@ build/package/chocolatey/*.bak
 schema.json
 Dockerfile
 .env
+*.json

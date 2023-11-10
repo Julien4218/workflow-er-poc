@@ -5,7 +5,7 @@ go 1.19
 // replace github.com/Julien4218/temporal-slack-activity => /Users/<username>/temporal-slack-activity
 
 require (
-	github.com/Julien4218/temporal-newrelic-activity v0.1.0
+	github.com/Julien4218/temporal-newrelic-activity v0.2.0
 	github.com/Julien4218/temporal-slack-activity v0.7.0
 	github.com/joho/godotenv v1.5.1
 	github.com/newrelic/go-agent/v3 v3.27.0
@@ -36,6 +36,8 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.0 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/itchyny/gojq v0.12.13 // indirect
+	github.com/itchyny/timefmt-go v0.1.5 // indirect
 	github.com/klauspost/compress v1.16.3 // indirect
 	github.com/newrelic/newrelic-client-go/v2 v2.22.0 // indirect
 	github.com/pborman/uuid v1.2.1 // indirect
