@@ -2,13 +2,15 @@ package workflows
 
 import (
 	"errors"
-	slackActivities "github.com/Julien4218/temporal-slack-activity/activities"
-	slackModels "github.com/Julien4218/temporal-slack-activity/models"
-	"github.com/Julien4218/workflow-poc/instrumentation"
-	"github.com/sirupsen/logrus"
-	"go.temporal.io/sdk/workflow"
 	"os"
 	"time"
+
+	slackActivities "github.com/Julien4218/temporal-slack-activity/activities"
+	slackModels "github.com/Julien4218/temporal-slack-activity/models"
+	"github.com/sirupsen/logrus"
+	"go.temporal.io/sdk/workflow"
+
+	"github.com/Julien4218/workflow-poc/instrumentation"
 )
 
 const RetrospectiveWorkflowName = "RetrospectiveWorkflow"
