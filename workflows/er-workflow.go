@@ -32,7 +32,10 @@ func ErWorkflow(ctx workflow.Context, input *ErWorkflowInput) (string, error) {
 	ctx = updateWorkflowContextOptions(ctx)
 	logrus.Infof("Got input:%s", input)
 	// Execute the SlackMessageActivity synchronously (wait for the result before proceeding)
-	message := fmt.Sprintf("Hello %s, this is a tier %s", input.Email, input.Tier)
+	message := ""
+	if input != nil {
+		message = fmt.Sprintf("Hello %s, this is a tier %s", input.Email, input.Tier)
+	}
 	requiredSlackData := lookupSlackData(message)
 	var result slackModels.MessageDetails
 	if err := workflow.ExecuteActivity(ctx, slackActivities.PostMessageActivity, requiredSlackData).Get(ctx, &result); err != nil {
@@ -79,7 +82,6 @@ func ErWorkflow(ctx workflow.Context, input *ErWorkflowInput) (string, error) {
 				return "", err
 			}
 
-			//todo start next workflow
 			var incidentWorkflowInput = IncidentWorkflowInput{}
 			var childResponse string
 			err = workflow.ExecuteChildWorkflow(ctx, IncidentWorkflow, incidentWorkflowInput).Get(ctx, &childResponse)
@@ -88,7 +90,6 @@ func ErWorkflow(ctx workflow.Context, input *ErWorkflowInput) (string, error) {
 			}
 			logrus.Infof("child incident workflow completed")
 
-			//todo start next workflow
 			var retrospectiveWorkflowInput = RetrospectiveWorkflowInput{}
 			err = workflow.ExecuteChildWorkflow(ctx, RetrospectiveWorkflow, retrospectiveWorkflowInput).Get(ctx, &childResponse)
 			if err != nil {
@@ -112,7 +113,7 @@ func ErWorkflow(ctx workflow.Context, input *ErWorkflowInput) (string, error) {
 
 			continue
 
-		} else if hasNotIncidentReactionOnMessage(reactionKeysMap, reactionCountsMap) {
+		} else if hasNotAnIncidentReactionOnMessage(reactionKeysMap, reactionCountsMap) {
 			logrus.Infof("is not incident")
 			requiredSlackData := slackModels.SlackActivityData{
 				ChannelId: os.Getenv("SLACK_CHANNEL"),
@@ -141,7 +142,7 @@ func ErWorkflow(ctx workflow.Context, input *ErWorkflowInput) (string, error) {
 	return "", nil
 }
 
-func hasNotIncidentReactionOnMessage(reactionKeysMap map[string]bool, reactionCountsMap map[string]int) bool {
+func hasNotAnIncidentReactionOnMessage(reactionKeysMap map[string]bool, reactionCountsMap map[string]int) bool {
 	//todo these methods won't work for non english installs
 	if reactionKeysMap["two"] && reactionCountsMap["two"] > 1 {
 		return true
