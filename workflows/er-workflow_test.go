@@ -62,7 +62,12 @@ func Test_hasNotAnIncidentReactionOnMessage_shouldFailIfMissingIncidentReaction(
 	assert.False(t, got)
 }
 
-func Test_updateWorkflowContextOptions_shouldSetStartCloseTimeoutToTenSeconds(t *testing.T) {
-	//got := updateWorkflowContextOptions()
-	//	todo
+func Test_lookupSlackData_shouldBuildSlackActivityData(t *testing.T) {
+
+	got := generateIncidentAlertMessage("foo")
+	assert.NotNil(t, got)
+	assert.Equal(t, "fooIt looks like there might be an error. \n:one: To confirm the incident and start debugging \n:two: To dismiss", got.FirstResponseWarning)
+	assert.Equal(t, "Here's the stack trace.", got.Attachment.Pretext)
+	assert.Equal(t, "Traceback (most recent call last):\n  File \"tb.py\", line 15, in <module>\n    a()\n  File \"tb.py\", line 3, in a\n    j = b(i)\n  File \"tb.py\", line 9, in b\n    c()\n  File \"tb.py\", line 13, in c\n    error()\nNameError: name 'error' is not defined\n", got.Attachment.Text)
+
 }
