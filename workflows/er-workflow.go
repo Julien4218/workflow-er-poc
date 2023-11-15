@@ -51,14 +51,14 @@ func ErWorkflow(ctx workflow.Context, input *ErWorkflowInput) (string, error) {
 		reactionKeysMap := make(map[string]bool)
 		reactionCountsMap := make(map[string]int)
 
-		err, s, err2 := getAndMapMessageReactions(ctx, result, reactionKeysMap, reactionCountsMap)
+		s, err2 := getAndMapMessageReactions(ctx, result, reactionKeysMap, reactionCountsMap)
 		if err2 != nil {
 			return s, err2
 		}
 
 		if hasIsIncidentReactionOnMessage(reactionKeysMap, reactionCountsMap) {
 			incidentIsPending = false
-			s, err2 := doIncidentPath(ctx, result, err)
+			s, err2 := doIncidentPath(ctx, result)
 			if err2 != nil {
 				return s, err2
 			}
@@ -82,18 +82,18 @@ func ErWorkflow(ctx workflow.Context, input *ErWorkflowInput) (string, error) {
 	return "", nil
 }
 
-func getAndMapMessageReactions(ctx workflow.Context, result slackModels.MessageDetails, reactionKeysMap map[string]bool, reactionCountsMap map[string]int) (error, string, error) {
+func getAndMapMessageReactions(ctx workflow.Context, result slackModels.MessageDetails, reactionKeysMap map[string]bool, reactionCountsMap map[string]int) (string, error) {
 	var reactions []slack.ItemReaction
 	err := workflow.ExecuteActivity(ctx, slackActivities.GetMessageReactions, result.ChannelID, result.Timestamp).Get(ctx, &reactions)
 	if err != nil {
-		return nil, "", err
+		return "", err
 	}
 
 	for i := 0; i < len(reactions); i++ {
 		reactionKeysMap[reactions[i].Name] = true
 		reactionCountsMap[reactions[i].Name] = reactions[i].Count
 	}
-	return err, "", nil
+	return "", nil
 }
 
 func waitForInput(ctx workflow.Context) (string, error) {
@@ -111,13 +111,13 @@ func doNotIncidentPath(ctx workflow.Context, result slackModels.MessageDetails) 
 	return "", nil
 }
 
-func doIncidentPath(ctx workflow.Context, result slackModels.MessageDetails, err error) (string, error) {
+func doIncidentPath(ctx workflow.Context, result slackModels.MessageDetails) (string, error) {
 	if err := workflow.ExecuteActivity(ctx, slackActivities.PostMessageActivity, generateIncidentConfirmationMessage()).Get(ctx, &result); err != nil {
 		return "", err
 	}
 
 	var childResponse string
-	err = workflow.ExecuteChildWorkflow(ctx, IncidentWorkflow, IncidentWorkflowInput{}).Get(ctx, &childResponse)
+	err := workflow.ExecuteChildWorkflow(ctx, IncidentWorkflow, IncidentWorkflowInput{}).Get(ctx, &childResponse)
 	if err != nil {
 		return "", err
 	}
